@@ -526,6 +526,10 @@
             </section><!-- /brain-panel -->
 
             <section class="panel info-panel">
+                <div id="histogramBox" class="infoBox" style="display:none">
+                    <h3>GnRH Agonists Histogram</h3>
+                    <img src="HHVSLupron.png" alt="GnRH agonists histogram" style="max-width:100%;height:auto;border-radius:8px;"/>
+                </div>
                 <div id="checkboxInfo" class="infoBox" style="display:none"></div>
                 <div id="tannerBox" class="infoBox"></div>
                 <div id="description" class="infoBox"></div>
@@ -625,6 +629,16 @@
                 featureImages.forEach(img => {
                     img.classList.toggle('visible', featureImagesToggle.checked);
                 });
+
+                // Standalone GnRH-agonist histogram: appears on its own whenever
+                // the histogram toggle is on. When Lupron (IHH) is active its info
+                // box already renders the same histogram, so hide this standalone
+                // copy to avoid showing it twice.
+                const histogramBox = document.getElementById('histogramBox');
+                if (histogramBox) {
+                    histogramBox.style.display =
+                        (featureImagesToggle.checked && !disorderToggle.checked) ? 'block' : 'none';
+                }
             }
             
             // Draw Legend
@@ -933,7 +947,13 @@
                     tannerFreezeToggle.checked = true;
                     updateAll();
                 } else {
-                    resetSimulation();
+                    // Undo only this toggle's own effect, like the other switches,
+                    // instead of resetting the whole simulation. Cross Sex hormones
+                    // forces a Tanner freeze on, so release that here.
+                    genderHormonesActive = false;
+                    tannerFreezeToggle.checked = false;
+                    tannerFreezeAge = null;
+                    updateAll();
                 }
             });
             brainSvg.addEventListener('mousemove', (e) => {
